@@ -1,0 +1,14 @@
+{
+    "name": "ShaderStripping.Runtime",
+    "rootNamespace": "ShaderStripping",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
