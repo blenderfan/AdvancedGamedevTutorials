@@ -34,11 +34,7 @@ namespace ShaderStripping
                 {
                     if(keywords.Contains(this.keywordsToRemove[j]))
                     {
-                        //It's a weird way to loop through it, when you could just go backwards?
-                        //Well, I copied it from Unity's documentation, so maybe there is a reason, or everybody
-                        //just always copies it like that ^^
                         data.RemoveAt(i);
-                        i--;
                         break;
                     }
                 }
