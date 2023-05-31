@@ -96,10 +96,10 @@ Material:
     m_Floats:
     - _AlphaClip: 0
     - _Blend: 0
-    - _BlendDistance: 0.6
-    - _BlendNoiseScale: 245.6
-    - _BlendNoiseStrength: 2.12
-    - _BlendTiling: 0.31
+    - _BlendDistance: 1.29
+    - _BlendNoiseScale: 71.62
+    - _BlendNoiseStrength: 4.84
+    - _BlendTiling: 0.2
     - _BumpScale: 1
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
