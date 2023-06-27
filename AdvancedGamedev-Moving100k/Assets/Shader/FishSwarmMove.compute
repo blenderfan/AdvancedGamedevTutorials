@@ -1,0 +1,28 @@
+
+#pragma kernel Move
+
+#include "FishSwarm.cginc"
+
+float _Time;
+float4 _FishSwarmTarget;
+float4x4 _SwarmLocalToWorld;
+
+StructuredBuffer<FishData> _FishSwarmData;
+RWStructuredBuffer<float4x4> _FishSwarmTransforms;
+
+[numthreads(64,1,1)]
+void Move (uint3 id : SV_DispatchThreadID)
+{
+
+
+    FishData fishData = _FishSwarmData[id.x];
+    float4x4 swarmTransform = _SwarmLocalToWorld;
+    
+    float3 position = fishData.offset;
+    position.y = fishData.offset.y + sin(fishData.timeOffset + _Time);
+    
+    swarmTransform._m03_m13_m23 = swarmTransform._m03_m13_m23 + position;
+    
+    _FishSwarmTransforms[id.x] = swarmTransform;
+    
+}

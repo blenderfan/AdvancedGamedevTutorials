@@ -1,12 +1,16 @@
+// Upgrade NOTE: replaced 'UNITY_INSTANCE_ID' with 'UNITY_VERTEX_INPUT_INSTANCE_ID'
+
+// Upgrade NOTE: replaced 'UNITY_INSTANCE_ID' with 'UNITY_VERTEX_INPUT_INSTANCE_ID'
+
 Shader "Unlit/InstancedFish"
 {
     Properties
     {
-        _MainTex ("Texture", 2D) = "white" {}
+        
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
+        Tags { "RenderType"="Opaque" "LightMode"="ForwardBase"}
         LOD 100
 
         Pass
@@ -16,40 +20,68 @@ Shader "Unlit/InstancedFish"
             #pragma fragment frag
             // make fog work
             #pragma multi_compile_fog
+            #pragma multi_compile_instancing
+            #pragma instancing_options assumeuniformscaling
 
             #include "UnityCG.cginc"
+            #include "UnityInstancing.cginc"
+            #include "UnityLightingCommon.cginc"
+            #include "FishSwarm.cginc"
 
             struct appdata
             {
                 float4 vertex : POSITION;
-                float2 uv : TEXCOORD0;
+                float4 normal : NORMAL;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             struct v2f
             {
-                float2 uv : TEXCOORD0;
                 UNITY_FOG_COORDS(1)
                 float4 vertex : SV_POSITION;
+                float4 color : TEXCOORD0;
+                float4 diff : COLOR0;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
-            sampler2D _MainTex;
-            float4 _MainTex_ST;
+            StructuredBuffer<FishData> _FishSwarmData;
+            StructuredBuffer<float4x4> _FishSwarmTransforms;
+
 
             v2f vert (appdata v)
             {
                 v2f o;
-                o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                UNITY_TRANSFER_FOG(o,o.vertex);
+                UNITY_SETUP_INSTANCE_ID(v);
+                float4 worldPos = 0;
+#if defined(UNITY_INSTANCING_ENABLED) || defined(UNITY_PROCEDURAL_INSTANCING_ENABLED)
+                float4 objPos = v.vertex * _FishSwarmData[unity_InstanceID].scale;
+                objPos.w = 1.0f;
+                worldPos = mul(_FishSwarmTransforms[unity_InstanceID], objPos);
+                o.color = _FishSwarmData[unity_InstanceID].color;
+    
+                float3 worldNormal = mul((float3x3)_FishSwarmTransforms[unity_InstanceID], v.normal);
+                float nl = max(0, dot(worldNormal, _WorldSpaceLightPos0.xyz));
+                o.diff = nl * _LightColor0;
+    
+                o.diff.rgb += ShadeSH9(float4(worldNormal, 1));
+    
+#else
+                o.color = float4(1, 1, 1, 1);
+                o.diff = 0;
+#endif
+                o.vertex = mul(UNITY_MATRIX_VP, worldPos);
+    
+
+                UNITY_TRANSFER_FOG(o, o.vertex);
+                UNITY_TRANSFER_INSTANCE_ID(v, o);
                 return o;
             }
 
             fixed4 frag (v2f i) : SV_Target
             {
-                // sample the texture
-                fixed4 col = tex2D(_MainTex, i.uv);
-                // apply fog
+                float4 col = i.color * i.diff;
                 UNITY_APPLY_FOG(i.fogCoord, col);
+
                 return col;
             }
             ENDCG
