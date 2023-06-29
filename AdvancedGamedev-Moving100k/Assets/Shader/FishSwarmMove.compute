@@ -4,24 +4,51 @@
 #include "FishSwarm.cginc"
 
 float _Time;
+float _PreviousTime;
 float4 _FishSwarmTarget;
 float4x4 _SwarmLocalToWorld;
 
 StructuredBuffer<FishData> _FishSwarmData;
 RWStructuredBuffer<float4x4> _FishSwarmTransforms;
 
+
+
 [numthreads(64,1,1)]
 void Move (uint3 id : SV_DispatchThreadID)
 {
-
+    float deltaTime = _Time - _PreviousTime;
 
     FishData fishData = _FishSwarmData[id.x];
     float4x4 swarmTransform = _SwarmLocalToWorld;
+    float4x4 currentTransform = _FishSwarmTransforms[id.x];
+
+    float3 offset = fishData.offset;
+    offset.y = sin(fishData.timeOffset + _Time);
+    offset.x = cos(fishData.timeOffset + _Time);
+    offset.z = sin(fishData.timeOffset + _Time);
     
-    float3 position = fishData.offset;
-    position.y = fishData.offset.y + sin(fishData.timeOffset + _Time);
+    float3 targetPos = swarmTransform._m03_m13_m23 + fishData.offset + offset;
+    float3 currentPos = currentTransform._m03_m13_m23;
     
-    swarmTransform._m03_m13_m23 = swarmTransform._m03_m13_m23 + position;
+    float3 dir = normalize(targetPos - currentPos);
+    
+    float3 nextPos = currentPos + dir * fishData.velocity * deltaTime;
+    
+    float3 fishForward = normalize(mul(currentTransform, float4(0, 0, 1, 0)).xyz);
+
+    float rotAngle = acos(dot(normalize(fishForward), dir));
+    float3 rotAxis = normalize(cross(fishForward, dir));
+
+        
+    float3x3 localRotation = CreateRotationMatrix(rotAxis, rotAngle * fishData.angularVelocity * deltaTime);
+    float3x3 prevRotation = (float3x3)currentTransform;
+        
+    float3x3 combinedRotation = mul(localRotation, prevRotation);
+        
+    swarmTransform = InsertRotationMatrix(swarmTransform, combinedRotation);
+    
+    
+    swarmTransform._m03_m13_m23 = nextPos;
     
     _FishSwarmTransforms[id.x] = swarmTransform;
     

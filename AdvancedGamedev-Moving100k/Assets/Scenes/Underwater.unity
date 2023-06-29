@@ -15,9 +15,9 @@ RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 9
   m_Fog: 1
-  m_FogColor: {r: 0.06666667, g: 0.10980392, b: 0.16862746, a: 0}
+  m_FogColor: {r: 0.15726237, g: 0.24239737, b: 0.3584906, a: 0}
   m_FogMode: 2
-  m_FogDensity: 0.03
+  m_FogDensity: 0.01
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
   m_AmbientSkyColor: {r: 0.06541473, g: 0.07505636, b: 0.09433961, a: 1}
@@ -139,7 +139,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &145559406
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -153,14 +153,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   positionShader: {fileID: 7200000, guid: a66958ee629ab3a4a9b83011e81e0d3b, type: 3}
-  swarmRadius: 20
-  swarmSpeed: 5
+  swarmRadius: 40
+  swarmSpeed: 30
   swarmRotationSpeed: 5
+  fishAngularVelocity: 0.5
   hook: {fileID: 6305660508055004422}
   instances: 300000
   fishMaterial: {fileID: 2100000, guid: a2f1752a9e0bb2540abffa43b913cfe9, type: 2}
   fishMesh: {fileID: -5495902117074765545, guid: f7f69eb3a6ff3aa42a641f7301d18049, type: 3}
-  velocityRange: {x: 0, y: 0}
+  velocityRange: {x: 5, y: 15}
   timeOffsetRange: {x: 0, y: 5}
   scaleRange: {x: 0.5, y: 1.5}
 --- !u!4 &145559407
@@ -176,7 +177,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &599561727 stripped
 GameObject:
@@ -277,6 +278,58 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 80, y: 0, z: 0}
+--- !u!1 &649337199
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 649337201}
+  - component: {fileID: 649337200}
+  m_Layer: 0
+  m_Name: Test
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &649337200
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 649337199}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5e24627a89672c14da29b94d7936a151, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveShader: {fileID: 7200000, guid: c330656b4dd37064fba6a4b6aee7cec2, type: 3}
+  swarmRadius: 40
+  swarmSpeed: 5
+  swarmRotationSpeed: 2
+  instances: 100000
+  hook: {fileID: 6305660508055004422}
+  fishMaterial: {fileID: 2100000, guid: 7cef67c8821c6e846873fdb53b425796, type: 2}
+  fishMesh: {fileID: -5495902117074765545, guid: f7f69eb3a6ff3aa42a641f7301d18049, type: 3}
+--- !u!4 &649337201
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 649337199}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1645077957
 GameObject:
   m_ObjectHideFlags: 0
@@ -314,7 +367,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.068084724, g: 0.11047081, b: 0.16981131, a: 0}
+  m_BackGroundColor: {r: 0.1504984, g: 0.23849508, b: 0.3584906, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -382,6 +435,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76b114c8d4badce45864b1c74bf5c979, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  followSpeed: 5
   target: {fileID: 599561727}
 --- !u!1 &2101677062
 GameObject:
@@ -401,7 +455,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!64 &2101677063
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -483,11 +537,11 @@ Transform:
   m_GameObject: {fileID: 2101677062}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 50, y: 50, z: 50}
+  m_LocalScale: {x: 150, y: 150, z: 150}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &6305660508055004421
 PrefabInstance:
@@ -507,7 +561,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2342322750159286692, guid: a0507c89e26802c4bbe75ebc5d2b81d5, type: 3}
       propertyPath: m_RootOrder
-      value: 3
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2342322750159286692, guid: a0507c89e26802c4bbe75ebc5d2b81d5, type: 3}
       propertyPath: m_LocalPosition.x
@@ -515,7 +569,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2342322750159286692, guid: a0507c89e26802c4bbe75ebc5d2b81d5, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 7.47
       objectReference: {fileID: 0}
     - target: {fileID: 2342322750159286692, guid: a0507c89e26802c4bbe75ebc5d2b81d5, type: 3}
       propertyPath: m_LocalPosition.z
@@ -550,8 +604,28 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7076732067781138842, guid: a0507c89e26802c4bbe75ebc5d2b81d5, type: 3}
+      propertyPath: cam
+      value: 
+      objectReference: {fileID: 1645077959}
+    - target: {fileID: 7076732067781138842, guid: a0507c89e26802c4bbe75ebc5d2b81d5, type: 3}
       propertyPath: speed
       value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 7076732067781138842, guid: a0507c89e26802c4bbe75ebc5d2b81d5, type: 3}
+      propertyPath: sideSpeed
+      value: 60
+      objectReference: {fileID: 0}
+    - target: {fileID: 7076732067781138842, guid: a0507c89e26802c4bbe75ebc5d2b81d5, type: 3}
+      propertyPath: upDownSpeed
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 7076732067781138842, guid: a0507c89e26802c4bbe75ebc5d2b81d5, type: 3}
+      propertyPath: forwardSpeed
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 7076732067781138842, guid: a0507c89e26802c4bbe75ebc5d2b81d5, type: 3}
+      propertyPath: moveSmoothness
+      value: 7.32
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

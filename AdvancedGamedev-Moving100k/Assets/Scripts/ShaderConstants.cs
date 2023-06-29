@@ -12,6 +12,7 @@ public static class ShaderConstants
     public static readonly string SWARM_LOCAL_TO_WORLD = "_SwarmLocalToWorld";
 
     public static readonly string TIME = "_Time";
+    public static readonly string PREVIOUS_TIME = "_PreviousTime";
 
 
     //IDs
@@ -21,6 +22,7 @@ public static class ShaderConstants
     public static readonly int SWARM_LOCAL_TO_WORLD_ID = 0;
 
     public static readonly int TIME_ID = 0;
+    public static readonly int PREVIOUS_TIME_ID = 0;
 
 
     static ShaderConstants()
@@ -31,6 +33,7 @@ public static class ShaderConstants
         SWARM_LOCAL_TO_WORLD_ID = Shader.PropertyToID(SWARM_LOCAL_TO_WORLD);
 
         TIME_ID = Shader.PropertyToID(TIME);
+        PREVIOUS_TIME_ID = Shader.PropertyToID(PREVIOUS_TIME);
     }
     
 }

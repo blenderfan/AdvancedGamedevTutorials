@@ -59,7 +59,7 @@ public class FishSwarm : MonoBehaviour, IDisposable
     }
 
     [BurstCompile]
-    private struct FishTransformsInitJob : IJob
+    private struct FishTransformsInitJob : IJobParallelFor
     {
         public float radius;
         public float angularVelocity;
@@ -77,25 +77,22 @@ public class FishSwarm : MonoBehaviour, IDisposable
 
         public Unity.Mathematics.Random random;
 
-        public void Execute()
+        public void Execute(int index)
         {
-            for (int i = 0; i < this.matrices.Length; i++)
-            {
-                float radiusFactor = (1.0f - this.random.NextFloat() * this.random.NextFloat());
-                var offset = this.random.NextFloat3Direction() * this.radius * radiusFactor;
-                float scale = Mathf.Lerp(this.scaleRange.x, this.scaleRange.y, this.random.NextFloat());
+            float radiusFactor = (1.0f - this.random.NextFloat() * this.random.NextFloat());
+            var offset = this.random.NextFloat3Direction() * this.radius * radiusFactor;
+            float scale = Mathf.Lerp(this.scaleRange.x, this.scaleRange.y, this.random.NextFloat());
 
-                this.matrices[i] = Matrix4x4.TRS(offset, Quaternion.identity, Vector3.one);
-                this.fishData[i] = new FishData()
-                {
-                    offset = offset,
-                    velocity = math.lerp(this.velocityRange.x, this.velocityRange.y, 4 * radiusFactor * (1 - radiusFactor) * this.random.NextFloat()),
-                    color = this.random.NextFloat4(),
-                    timeOffset = (this.random.NextFloat() * (this.timeOffsetRange.y - this.timeOffsetRange.x)) + this.timeOffsetRange.x,
-                    scale = scale,
-                    angularVelocity = this.angularVelocity,
-                };
-            }
+            this.matrices[index] = Matrix4x4.TRS(offset, Quaternion.identity, Vector3.one);
+            this.fishData[index] = new FishData()
+            {
+                offset = offset,
+                velocity = math.lerp(this.velocityRange.x, this.velocityRange.y,  4 * radiusFactor * (1 - radiusFactor) * this.random.NextFloat()),
+                color = this.random.NextFloat4(),
+                timeOffset = (this.random.NextFloat() * (this.timeOffsetRange.y - this.timeOffsetRange.x)) + this.timeOffsetRange.x,
+                scale = scale,
+                angularVelocity = this.angularVelocity,
+            };
         }
     }
 
@@ -117,7 +114,7 @@ public class FishSwarm : MonoBehaviour, IDisposable
             angularVelocity = this.fishAngularVelocity
         };
 
-        fishTransformsInitJob.Schedule().Complete();
+        fishTransformsInitJob.Schedule(this.instances, 64).Complete();
 
         this.fishTransformsBuffer = new GraphicsBuffer(GraphicsBuffer.Target.Structured, this.instances, sizeof(Matrix4x4));
         this.fishTransformsBuffer.SetData(fishTransforms);
