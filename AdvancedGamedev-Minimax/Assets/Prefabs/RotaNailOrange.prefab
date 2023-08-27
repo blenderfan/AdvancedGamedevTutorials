@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7291981854568717494}
   m_Layer: 0
-  m_Name: RotaNailRed
+  m_Name: RotaNailOrange
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
