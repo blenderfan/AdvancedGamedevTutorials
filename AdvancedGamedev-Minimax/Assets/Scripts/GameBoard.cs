@@ -13,6 +13,8 @@ public class GameBoard : MonoBehaviour
     public GameObject orangeNailPrefab;
     public GameObject blueNailPrefab;
 
+    public GameManager gameMgr = null;
+
     public List<BoardPosition> nailBoardPositions;
     public List<BoardPosition> blueNailsDefaultPositions;
     public List<BoardPosition> orangeNailsDefaultPositions;
@@ -38,7 +40,12 @@ public class GameBoard : MonoBehaviour
 
     #endregion
 
-    private void ResetGame()
+    public void SetStartColor(PlayerColor color)
+    {
+        this.currentColor = color;
+    }
+
+    public void ResetGame()
     {
         this.blueNailsPlaced = 0;
         this.orangeNailsPlaced = 0;
@@ -105,7 +112,7 @@ public class GameBoard : MonoBehaviour
 
     public void OnStartTouch(Vector2 position, float time)
     {
-        if(!this.dragAndDrop.DragInProgress())
+        if(this.gameMgr.GameState == GameState.GAME && !this.dragAndDrop.DragInProgress())
         {
             var ray = CameraUtility.CreateCameraRay(this.mainCamera, position);
   
@@ -147,9 +154,12 @@ public class GameBoard : MonoBehaviour
 
         bool hasWon = this.CheckIfPlayerWon(this.currentColor);
 
-        this.currentColor = this.currentColor == PlayerColor.BLUE ? PlayerColor.ORANGE : PlayerColor.BLUE;
+        if(hasWon)
+        {
+            this.gameMgr.StartCoroutine(this.gameMgr.Win(this.currentColor));
+        }
 
-        Debug.Log(hasWon);
+        this.currentColor = this.currentColor == PlayerColor.BLUE ? PlayerColor.ORANGE : PlayerColor.BLUE;
     }
 
     public void OnEndTouch(Vector2 position, float time)

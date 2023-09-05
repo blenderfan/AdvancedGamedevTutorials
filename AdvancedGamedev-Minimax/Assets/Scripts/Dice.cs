@@ -36,17 +36,20 @@ public class Dice : MonoBehaviour
 
     #endregion
 
+    public bool RollIsFinished() => !this.isRolling;
+
     public DiceColor GetDiceColor() => this.currentDiceColor;
 
     private void Start()
     {
         this.rb = this.GetComponent<Rigidbody>();
-
-        this.StartCoroutine(this.Roll());
+        this.rb.maxAngularVelocity = 100.0f;
     }
 
     public IEnumerator Roll()
     {
+        this.gameObject.SetActive(true);
+
         this.isRolling = true;
         this.didCollide = false;
 
@@ -55,6 +58,11 @@ public class Dice : MonoBehaviour
         this.rb.velocity = Vector3.zero;
         this.rb.angularVelocity = Vector3.zero;
         this.rb.isKinematic = true;
+
+        yield return null;
+
+        this.transform.position = this.startPosition.position;
+        this.transform.rotation = this.startPosition.rotation;
 
         yield return new WaitForSeconds(this.diceWaitTime);
 
@@ -66,6 +74,22 @@ public class Dice : MonoBehaviour
         this.rb.AddForce(direction * this.rollForce, ForceMode.VelocityChange);
         this.rb.AddTorque(Random.onUnitSphere * this.rollTorque, ForceMode.VelocityChange);
     }
+
+    public IEnumerator Vanish()
+    {
+        float timer = 0.0f;
+        while (timer < 2.0f)
+        {
+            this.rb.AddTorque(Vector3.back, ForceMode.VelocityChange);
+
+            yield return null;
+
+            timer += Time.deltaTime;
+        }
+
+        this.gameObject.SetActive(false);
+    }
+
     private void OnCollisionEnter(Collision collision)
     {
         this.didCollide = true;
