@@ -48,13 +48,14 @@ public class GameManager : MonoBehaviour
         var animatedTransform = winningColor == PlayerColor.ORANGE ? this.orangeWinsText : this.blueWinsText;
         animatedTransform.gameObject.SetActive(true);
 
-        var centerPosition = animatedTransform.position;
+        var centerPosition = animatedTransform.anchoredPosition;
         float startY = centerPosition.y;
+        float centerX = animatedTransform.position.x;
         animatedTransform.anchoredPosition = new Vector2(this.textStartPosition, startY);
 
         var moveSequence = DOTween.Sequence();
 
-        var moveToCenter = animatedTransform.DOMoveX(centerPosition.x, 1.0f);
+        var moveToCenter = animatedTransform.DOMoveX(centerX, 1.0f);
         moveToCenter.SetEase(Ease.OutExpo);
 
         var moveFromCenter = animatedTransform.DOMoveX(this.textEndPosition, 1.0f);
@@ -69,7 +70,7 @@ public class GameManager : MonoBehaviour
         yield return moveSequence.WaitForCompletion();
 
         animatedTransform.gameObject.SetActive(false);
-        animatedTransform.position = centerPosition;
+        animatedTransform.anchoredPosition = centerPosition;
 
         yield return this.FadeInSelectionCanvas();
     }
@@ -146,14 +147,15 @@ public class GameManager : MonoBehaviour
         var animatedTransform = color == Dice.DiceColor.BLUE ? this.blueStartsText : this.orangeStartsText;
         animatedTransform.gameObject.SetActive(true);
 
-        var centerPosition = animatedTransform.position;
+        var centerPosition = animatedTransform.anchoredPosition;
         float startY = centerPosition.y;
+        float centerX = animatedTransform.position.x;
         animatedTransform.anchoredPosition = new Vector2(this.textStartPosition, startY);
 
         var moveSequence = DOTween.Sequence();
 
         
-        var moveToCenter = animatedTransform.DOMoveX(centerPosition.x, 1.0f);
+        var moveToCenter = animatedTransform.DOMoveX(centerX, 1.0f);
         moveToCenter.SetEase(Ease.OutExpo);
 
         var moveFromCenter = animatedTransform.DOMoveX(this.textEndPosition, 1.0f);
@@ -172,7 +174,7 @@ public class GameManager : MonoBehaviour
         yield return moveSequence.WaitForCompletion();
 
         animatedTransform.gameObject.SetActive(false);
-        animatedTransform.position = centerPosition;
+        animatedTransform.anchoredPosition = centerPosition;
 
         this.gameState = GameState.GAME;
         this.gameBoard.SetStartColor(color == Dice.DiceColor.BLUE ? PlayerColor.BLUE : PlayerColor.ORANGE);

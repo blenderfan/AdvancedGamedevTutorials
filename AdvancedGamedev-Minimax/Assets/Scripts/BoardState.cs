@@ -57,6 +57,28 @@ public struct BoardState : IDisposable
         }
     }
 
+    public void MakeMove(Move move)
+    {
+
+        int startIdx = move.start.y * 3 + move.start.x;
+        int endIdx = move.end.y * 3 + move.end.x;
+
+        if(this.currentColor == PlayerColor.BLUE && this.uncommittedBlue > 0)
+        {
+            this.uncommittedBlue--;
+            this.boardState[endIdx] = PositionState.BLUE;
+        } else if(this.currentColor == PlayerColor.ORANGE && this.uncommittedOrange > 0)
+        {
+            this.uncommittedOrange--;
+            this.boardState[endIdx] = PositionState.ORANGE;
+        }
+        else
+        {
+            this.boardState[startIdx] = PositionState.EMPTY;
+            this.boardState[endIdx] = this.currentColor == PlayerColor.BLUE ? PositionState.BLUE : PositionState.ORANGE;
+        }
+    }
+
     public void GetMoves(ref NativeList<Move> moves)
     {
 
