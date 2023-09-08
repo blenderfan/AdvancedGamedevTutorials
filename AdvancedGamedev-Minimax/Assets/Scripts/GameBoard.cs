@@ -351,6 +351,28 @@ public class GameBoard : MonoBehaviour
             1, 1,
             0, 2);
 
+
+        //"Corners"
+        playerHasWon |= CheckLine(color,
+            0, 0,
+            1, 0,
+            0, 1);
+
+        playerHasWon |= CheckLine(color,
+            1, 0,
+            2, 0,
+            2, 1);
+
+        playerHasWon |= CheckLine(color,
+            2, 1,
+            2, 2,
+            1, 2);
+
+        playerHasWon |= CheckLine(color,
+            1, 2,
+            0, 2,
+            0, 1);
+
         return playerHasWon;
     }
 

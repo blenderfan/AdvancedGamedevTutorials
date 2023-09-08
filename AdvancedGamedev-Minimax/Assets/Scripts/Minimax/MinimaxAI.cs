@@ -93,51 +93,60 @@ public class MinimaxAI : IDisposable
             float eval = this.Evaluate(state);
 
             var node = tree.data[treeNode];
-            var newNode = tree.AddChild(node, eval);
+            var newNode = tree.AddChild(node, min ? float.NegativeInfinity : float.PositiveInfinity);
             int newNodeIdx = newNode.arrIdx;
 
             //Game undecided
-            if(eval == 0.0f && depth + 1 <= this.searchDepth)
+            if (eval == 0.0f && depth + 1 <= this.searchDepth)
             {
 
                 var nextMoves = new NativeList<Move>(maxMoves, Allocator.Temp);
                 newState.GetMoves(ref nextMoves);
 
-                for(int i = 0; i < nextMoves.Length; i++)
+                for (int i = 0; i < nextMoves.Length; i++)
                 {
                     this.MinMaxExpand(tree, newNodeIdx, depthStack, newState, nextMoves[i], depth + 1, alpha, beta);
-                    if(min)
+
+                    if (min)
                     {
 
                         alpha = Mathf.Max(alpha, tree.data[newNodeIdx].item);
-                        if(alpha >= beta)
+                        if (alpha >= beta)
                         {
                             break;
                         }
 
-                    } else
+                    }
+                    else
                     {
 
                         beta = Mathf.Min(beta, tree.data[newNodeIdx].item);
-                        if(alpha >= beta)
+                        if (alpha >= beta)
                         {
                             break;
                         }
                     }
                 }
-            }
-
-            float parentVal = node.item;
-            //This is the part, where one can see why the algorithm is called Minimax ^^
-            if(min)
-            {
-                float minVal = Mathf.Min(tree.data[newNodeIdx].item, parentVal);
-                node.item = minVal;
             } else
             {
-                float maxVal = Mathf.Max(tree.data[newNodeIdx].item, parentVal);
+                newNode.item = eval;
+                tree.data[newNodeIdx] = newNode;
+            }
+
+
+            //This is the part, where one can see why the algorithm is called Minimax ^^
+            if (min)
+            {
+                float minVal = Mathf.Min(tree.data[newNodeIdx].item, node.item);
+                node.item = minVal;
+            }
+            else
+            {
+                float maxVal = Mathf.Max(tree.data[newNodeIdx].item, node.item);
                 node.item = maxVal;
             }
+
+
             tree.data[node.arrIdx] = node;
         }
 

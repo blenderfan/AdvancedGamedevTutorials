@@ -78,7 +78,7 @@ public class Dice : MonoBehaviour
         float timer = 0.0f;
         while (timer < 2.0f)
         {
-            this.rb.AddTorque(Vector3.back, ForceMode.VelocityChange);
+            this.rb.AddTorque(Vector3.back * 2.0f, ForceMode.VelocityChange);
 
             yield return null;
 
