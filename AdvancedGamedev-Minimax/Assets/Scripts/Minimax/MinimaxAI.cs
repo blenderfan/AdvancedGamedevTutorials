@@ -9,11 +9,6 @@ using UnityEngine;
 
 public class MinimaxAI : IDisposable
 {
-    #region Public Variables
-
-    public int searchDepth = 1;
-
-    #endregion
 
     #region Private Variables
 
@@ -21,6 +16,8 @@ public class MinimaxAI : IDisposable
     private const int maxMoves = 9;
 
     private BoardState boardState;
+
+    private int searchDepth = 1;
 
     private JobHandle bestMoveHandle;
 
@@ -55,12 +52,15 @@ public class MinimaxAI : IDisposable
         private const int boardPositionCount = 9;
         private const int maxMoves = 9;
 
+        private int simulatedMoves;
 
         #endregion
 
 
         private unsafe BoardState SimulateMove(BoardState state, NativeArray<PositionState> depthStack, Move move, int depth)
         {
+            this.simulatedMoves++;
+
             var newState = state;
             int depthOffset = depth * boardPositionCount;
 
@@ -83,7 +83,8 @@ public class MinimaxAI : IDisposable
         }
 
 
-        private void MinMaxExpand(NativeNTree<float> tree, int treeNode, NativeArray<PositionState> depthStack, BoardState state, Move move, int depth)
+        private void MinMaxExpand(NativeNTree<float> tree, int treeNode, NativeArray<PositionState> depthStack, BoardState state, Move move, int depth,
+            float alpha, float beta)
         {
             var newState = this.SimulateMove(state, depthStack, move, depth);
 
@@ -96,7 +97,7 @@ public class MinimaxAI : IDisposable
             int newNodeIdx = newNode.arrIdx;
 
             //Game undecided
-            if(eval == 0.0f && depth + 1 < this.searchDepth)
+            if(eval == 0.0f && depth + 1 <= this.searchDepth)
             {
 
                 var nextMoves = new NativeList<Move>(maxMoves, Allocator.Temp);
@@ -104,7 +105,25 @@ public class MinimaxAI : IDisposable
 
                 for(int i = 0; i < nextMoves.Length; i++)
                 {
-                    this.MinMaxExpand(tree, newNodeIdx, depthStack, newState, nextMoves[i], depth + 1);
+                    this.MinMaxExpand(tree, newNodeIdx, depthStack, newState, nextMoves[i], depth + 1, alpha, beta);
+                    if(min)
+                    {
+
+                        alpha = Mathf.Max(alpha, tree.data[newNodeIdx].item);
+                        if(alpha >= beta)
+                        {
+                            break;
+                        }
+
+                    } else
+                    {
+
+                        beta = Mathf.Min(beta, tree.data[newNodeIdx].item);
+                        if(alpha >= beta)
+                        {
+                            break;
+                        }
+                    }
                 }
             }
 
@@ -124,6 +143,7 @@ public class MinimaxAI : IDisposable
 
         public unsafe void Execute()
         {
+            this.simulatedMoves = 0;
 
             var depthStack = new NativeArray<PositionState>(boardPositionCount * (this.searchDepth + 1), Allocator.Temp);
 
@@ -140,18 +160,22 @@ public class MinimaxAI : IDisposable
             float max = float.NegativeInfinity;
             for (int i = 0; i < nextMoves.Length; i++)
             {
-                this.MinMaxExpand(this.gameTree, 0, depthStack, this.state, nextMoves[i], 0);
-                var child = this.gameTree.data[1];
+                this.MinMaxExpand(this.gameTree, 0, depthStack, this.state, nextMoves[i], 0, float.NegativeInfinity, float.PositiveInfinity);
+                var child = this.gameTree.data[0];
 
                 float score = child.item;
 
                 if(score > max)
                 {
-                    score = max;
+                    max = score;
                     this.bestMove.Value = nextMoves[i];
                 }
+
+                this.gameTree.Clear();
+                this.gameTree.AddRoot(float.NegativeInfinity);
             }
-            
+
+            Debug.Log($"Simulated {this.simulatedMoves} moves!");
         }
 
 
@@ -170,9 +194,9 @@ public class MinimaxAI : IDisposable
         }
     }
 
-    public void Init(PositionState[,] positions, PlayerColor color, int uncommittedBlue, int uncommittedOrange)
+    public void Init(int searchDepth, PositionState[,] positions, PlayerColor color, int uncommittedBlue, int uncommittedOrange)
     {
-
+        this.searchDepth = searchDepth;
         this.gameTree = new NativeNTree<float>(Allocator.Persistent);
         this.boardState = new BoardState(color, uncommittedBlue, uncommittedOrange);
         this.bestMoveReference = new NativeReference<Move>(Allocator.Persistent);
@@ -207,8 +231,6 @@ public class MinimaxAI : IDisposable
         };
 
         this.bestMoveHandle = bestMoveJob.Schedule();
-
-        this.gameTree.Clear();
     }
 
     public void Dispose()

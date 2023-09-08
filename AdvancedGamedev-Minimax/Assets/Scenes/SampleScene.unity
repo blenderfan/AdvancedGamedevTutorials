@@ -411,6 +411,7 @@ MonoBehaviour:
   orangeNailPrefab: {fileID: 1578367724295456925, guid: 061af5ff1bc7dc3498ef3f12c99410bd, type: 3}
   blueNailPrefab: {fileID: 1578367724295456925, guid: bf83aecae0f3e534381244700d9c2063, type: 3}
   gameMgr: {fileID: 2088156561}
+  searchDepth: 5
   nailBoardPositions:
   - {fileID: 1886752388}
   - {fileID: 1225086072}
@@ -986,7 +987,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &562348723
 Transform:
   m_ObjectHideFlags: 0
@@ -2281,7 +2282,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1047886263}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2088156561}
+        m_TargetAssemblyTypeName: GameManager, Minimax
+        m_MethodName: StartVSAiGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1047886263
 MonoBehaviour:
   m_ObjectHideFlags: 0

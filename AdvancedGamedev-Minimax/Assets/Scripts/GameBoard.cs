@@ -15,6 +15,8 @@ public class GameBoard : MonoBehaviour
 
     public GameManager gameMgr = null;
 
+    public int searchDepth = 5;
+
     public List<BoardPosition> nailBoardPositions;
     public List<BoardPosition> blueNailsDefaultPositions;
     public List<BoardPosition> orangeNailsDefaultPositions;
@@ -22,6 +24,8 @@ public class GameBoard : MonoBehaviour
     #endregion
 
     #region Private Variables
+
+    private bool vsAi;
 
     private Camera mainCamera = null;
 
@@ -39,6 +43,17 @@ public class GameBoard : MonoBehaviour
     private PlayerColor currentColor = PlayerColor.BLUE;
 
     #endregion
+
+    public void ActivateAI(bool aiEnabled)
+    {
+        this.vsAi = aiEnabled;
+
+        //Cheap, but it works
+        if (this.currentColor == PlayerColor.ORANGE && this.vsAi)
+        {
+            this.MakeAIMove();
+        }
+    }
 
     public void SetStartColor(PlayerColor color)
     {
@@ -99,7 +114,10 @@ public class GameBoard : MonoBehaviour
                 int xDiff = Mathf.Abs(startBoardPosition.x - position.x);
                 int yDiff = Mathf.Abs(startBoardPosition.y - position.y);
 
-                if(xDiff == 1 || yDiff == 1)
+                if((xDiff == 1 && yDiff == 0)
+                    || (xDiff == 0 && yDiff == 1)
+                    || (startBoardPosition.x == 1 && startBoardPosition.y == 1 && xDiff + yDiff == 2)
+                    || (position.x == 1 && position.y == 1 && xDiff + yDiff == 2))
                 {
                     return this.boardState[position.x, position.y] == PositionState.EMPTY
                         && this.blueNailsPlaced == 3 && this.orangeNailsPlaced == 3;
@@ -132,6 +150,7 @@ public class GameBoard : MonoBehaviour
         }
     }
 
+
     private void MakeMove(RotaNail nail, BoardPosition startPosition, BoardPosition targetPosition)
     {
         var targetBoardPosition = targetPosition.boardPosition;
@@ -162,6 +181,65 @@ public class GameBoard : MonoBehaviour
         this.currentColor = this.currentColor == PlayerColor.BLUE ? PlayerColor.ORANGE : PlayerColor.BLUE;
     }
 
+
+    private void FindMovingObjectsFromAIMove(Move move, out RotaNail nail, out BoardPosition startPosition, out BoardPosition targetPosition)
+    {
+        var start = move.start;
+
+        nail = null;
+        startPosition = null;
+        targetPosition = null;
+
+        var positionType = move.startPositionType;
+        if (positionType == BoardPositionType.BLUE
+            || positionType == BoardPositionType.ORANGE)
+        {
+            
+            foreach(var nailPosition in this.nailToPositionMap)
+            {
+                if(nailPosition.Value.positionType == positionType)
+                {
+                    nail = nailPosition.Key;
+                    startPosition = nailPosition.Value;
+                    break;
+                }
+            }
+        }
+        else
+        {
+            startPosition = this.nailBoardPositions.Find((b) => b.boardPosition == start);
+            foreach(var nailPosition in this.nailToPositionMap)
+            {
+                if(nailPosition.Value.boardPosition == start)
+                {
+                    nail = nailPosition.Key;
+                    break;
+                }
+            }
+        }
+
+        targetPosition = this.nailBoardPositions.Find((b) => b.boardPosition == move.end);
+    }
+
+    public void MakeAIMove()
+    {
+        var ai = new MinimaxAI();
+        ai.Init(this.searchDepth, this.boardState, this.currentColor,
+            this.blueNailsDefaultPositions.Count - this.blueNailsPlaced,
+            this.orangeNailsDefaultPositions.Count - this.orangeNailsPlaced);
+
+        ai.ScheduleBestMove();
+        //We could wait here for a few frames for the AI to finish asynchronously
+        //But we can also just Complete() here
+        ai.FinishBestMove();
+
+        var bestMove = ai.GetBestMove();
+        this.FindMovingObjectsFromAIMove(bestMove, out var nail, out var startPosition, out var targetPosition);
+        this.MakeMove(nail, startPosition, targetPosition);
+
+        ai.Dispose();
+    }
+
     public void OnEndTouch(Vector2 position, float time)
     {
         var dragResult = this.dragAndDrop.EndDrag();
@@ -172,6 +250,11 @@ public class GameBoard : MonoBehaviour
 
                 this.MakeMove(dragResult.nail, dragResult.startPosition, dragResult.targetPosition);
 
+                //Cheap, but it works
+                if (this.vsAi && !this.CheckIfPlayerWon(this.currentColor == PlayerColor.BLUE ? PlayerColor.ORANGE : PlayerColor.BLUE))
+                {
+                    this.MakeAIMove();
+                }
             }
             else
             {
@@ -276,6 +359,11 @@ public class GameBoard : MonoBehaviour
         if (CheckIfPlayerWon(PlayerColor.BLUE)) return GameOutcome.BLUE_WINS;
         else if (CheckIfPlayerWon(PlayerColor.ORANGE)) return GameOutcome.ORANGE_WINS;
         else return GameOutcome.ONGOING;
+    }
+
+    private void OnDestroy()
+    {
+        this.DeregisterInputEvents();
     }
 
 }

@@ -41,6 +41,8 @@ public class GameManager : MonoBehaviour
         this.gameState = GameState.SELECT_PLAYMODE;
     }
 
+
+
     public IEnumerator Win(PlayerColor winningColor)
     {
         this.gameState = GameState.SELECT_PLAYMODE;
@@ -118,13 +120,24 @@ public class GameManager : MonoBehaviour
         this.StartCoroutine(this.StartOneOnOneGameRoutine());
     }
 
+    public void StartVSAiGame()
+    {
+        this.StartCoroutine(this.StartVSAiGameRoutine());
+    }
+
     private IEnumerator StartOneOnOneGameRoutine()
     {
         yield return this.StartCoroutine(this.FadeOutSelectionCanvas());
-        yield return this.StartCoroutine(this.Roll());
+        yield return this.StartCoroutine(this.Roll(false));
     }
 
-    public IEnumerator Roll()
+    private IEnumerator StartVSAiGameRoutine()
+    {
+        yield return this.StartCoroutine(this.FadeOutSelectionCanvas());
+        yield return this.StartCoroutine(this.Roll(true));
+    }
+
+    public IEnumerator Roll(bool vsAi)
     {
         yield return this.FadeOutSelectionCanvas();
 
@@ -133,6 +146,9 @@ public class GameManager : MonoBehaviour
         bool isRolling = true;
         this.gameBoard.ResetGame();
         this.dice.gameObject.SetActive(true);
+
+        yield return null;
+
         this.dice.StartCoroutine(this.dice.Roll());
 
         while(isRolling)
@@ -178,6 +194,7 @@ public class GameManager : MonoBehaviour
 
         this.gameState = GameState.GAME;
         this.gameBoard.SetStartColor(color == Dice.DiceColor.BLUE ? PlayerColor.BLUE : PlayerColor.ORANGE);
+        this.gameBoard.ActivateAI(vsAi);
     }
 
     void Update()

@@ -55,8 +55,6 @@ public class Dice : MonoBehaviour
 
         this.rb.MovePosition(this.startPosition.position);
         this.rb.MoveRotation(this.startPosition.rotation);
-        this.rb.velocity = Vector3.zero;
-        this.rb.angularVelocity = Vector3.zero;
         this.rb.isKinematic = true;
 
         yield return null;

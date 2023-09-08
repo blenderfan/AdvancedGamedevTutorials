@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public struct BoardState : IDisposable
 {
@@ -27,6 +28,29 @@ public struct BoardState : IDisposable
         this.uncommittedOrange = uncommittedOrange;
     }
 
+    public void MakeMove(Move move)
+    {
+
+        int startIdx = move.start.y * 3 + move.start.x;
+        int endIdx = move.end.y * 3 + move.end.x;
+
+        if (this.currentColor == PlayerColor.BLUE && this.uncommittedBlue > 0)
+        {
+            this.uncommittedBlue--;
+            this.boardState[endIdx] = PositionState.BLUE;
+        }
+        else if (this.currentColor == PlayerColor.ORANGE && this.uncommittedOrange > 0)
+        {
+            this.uncommittedOrange--;
+            this.boardState[endIdx] = PositionState.ORANGE;
+        }
+        else
+        {
+            this.boardState[startIdx] = PositionState.EMPTY;
+            this.boardState[endIdx] = this.currentColor == PlayerColor.BLUE ? PositionState.BLUE : PositionState.ORANGE;
+        }
+    }
+
     private void FindMovesForPosition(ref NativeList<Move> moves, int x, int y)
     {
         var startPosition = new Vector2Int(x, y);
@@ -38,13 +62,16 @@ public struct BoardState : IDisposable
 
             if (state == PositionState.EMPTY)
             {
-                int endX = x % 3;
-                int endY = y / 3;
+                int endX = i % 3;
+                int endY = i / 3;
 
                 int diffX = Mathf.Abs(x - endX);
                 int diffY = Mathf.Abs(y - endY);
 
-                if (diffX == 1 ^ diffY == 1)
+                if ((diffX == 1 && diffY == 0)
+                    || (diffX == 0 && diffY == 1)
+                    || (startPosition.x == 1 && startPosition.y == 1 && diffX + diffY == 2)
+                    || (endX == 1 && endY == 1 && diffX + diffY == 2))
                 {
                     moves.Add(new Move()
                     {
@@ -54,28 +81,6 @@ public struct BoardState : IDisposable
                     });
                 }
             }
-        }
-    }
-
-    public void MakeMove(Move move)
-    {
-
-        int startIdx = move.start.y * 3 + move.start.x;
-        int endIdx = move.end.y * 3 + move.end.x;
-
-        if(this.currentColor == PlayerColor.BLUE && this.uncommittedBlue > 0)
-        {
-            this.uncommittedBlue--;
-            this.boardState[endIdx] = PositionState.BLUE;
-        } else if(this.currentColor == PlayerColor.ORANGE && this.uncommittedOrange > 0)
-        {
-            this.uncommittedOrange--;
-            this.boardState[endIdx] = PositionState.ORANGE;
-        }
-        else
-        {
-            this.boardState[startIdx] = PositionState.EMPTY;
-            this.boardState[endIdx] = this.currentColor == PlayerColor.BLUE ? PositionState.BLUE : PositionState.ORANGE;
         }
     }
 
