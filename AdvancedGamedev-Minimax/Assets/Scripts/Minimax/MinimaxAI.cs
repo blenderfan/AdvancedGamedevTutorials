@@ -106,7 +106,7 @@ public class MinimaxAI : IDisposable
                 for (int i = 0; i < nextMoves.Length; i++)
                 {
                     this.MinMaxExpand(tree, newNodeIdx, depthStack, newState, nextMoves[i], depth + 1, alpha, beta);
-
+                    
                     if (min)
                     {
 
