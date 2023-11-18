@@ -1768,7 +1768,7 @@ MonoBehaviour:
   m_OutputSlots: []
   m_ExposedName: velocity
   m_Exposed: 0
-  m_Order: 6
+  m_Order: 3
   m_Category: 
   m_Min:
     m_Type:
@@ -1950,7 +1950,7 @@ MonoBehaviour:
   - {fileID: 114350483966675054}
   m_ExposedName: Position
   m_Exposed: 1
-  m_Order: 7
+  m_Order: 4
   m_Category: 
   m_Min:
     m_Type:
@@ -1967,8 +1967,6 @@ MonoBehaviour:
   m_Nodes:
   - m_Id: 0
     linkedSlots:
-    - outputSlot: {fileID: 114350483966675054}
-      inputSlot: {fileID: 114350483966675066}
     - outputSlot: {fileID: 114350483966675055}
       inputSlot: {fileID: 114350483966675066}
     - outputSlot: {fileID: 114350483966675055}
