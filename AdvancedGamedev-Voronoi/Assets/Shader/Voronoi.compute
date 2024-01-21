@@ -1,0 +1,43 @@
+#pragma kernel Voronoi
+
+int TableSizeX;
+int TableSizeY;
+
+float4 Bounds;
+
+StructuredBuffer<float4> Sites;
+
+RWStructuredBuffer<int4> Result;
+
+[numthreads(8,8,1)]
+void Voronoi (uint3 id : SV_DispatchThreadID)
+{
+    uint nrOfSites, stride;
+    Sites.GetDimensions(nrOfSites, stride);
+
+    float percentX = id.x / (float)TableSizeX;
+    float percentY = id.y / (float)TableSizeY;
+    
+    float posX = lerp(Bounds.x, Bounds.z, percentX);
+    float posY = lerp(Bounds.y, Bounds.w, percentY);
+    
+    float2 pos = float2(posX, posY);
+    
+    float minDist = 10e10f;
+    int closestSite = -1;
+    
+    for(uint i = 0; i < nrOfSites; i++) {
+        
+        float2 sitePos = Sites[i].xy;
+        
+        float2 dir = sitePos - pos;
+        
+        float dist = dot(dir, dir);
+        if(dist < minDist) {
+            minDist = dist;
+            closestSite = i;
+        }
+    }
+    
+    Result[id.y * TableSizeX + id.x] = closestSite.xxxx;
+}
