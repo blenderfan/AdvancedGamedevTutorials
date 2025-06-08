@@ -1,0 +1,42 @@
+
+#pragma kernel Vertical
+
+float Scanline;
+float Fade;
+float Saturate;
+
+RWStructuredBuffer<float> Noise;
+
+Texture2D Copy;
+RWTexture2D<float4> Result;
+
+[numthreads(8,8,1)]
+void Vertical (uint3 id : SV_DispatchThreadID)
+{
+    uint width, height;
+    Result.GetDimensions(width, height);
+    
+    float uvx = id.x / (float)width;
+    float uvy = id.y / (float)height;
+    
+    float noise_uvx = uvx + Noise[id.y];
+    
+    float4 color;
+    if(noise_uvx < Scanline) {
+        
+        int left = (id.x - 1);
+        left = clamp(left, 0, width);
+        
+        color = Copy[uint2(left, id.y)];
+        color.rgb = saturate(color.rgb - Fade);
+        
+    } else {
+        
+        float luma = dot(Result[uint2(id.x, id.y)].rgb, float3(0.2126729, 0.7151522, 0.0721750));
+        color.rgb = luma.xxx * Saturate.xxx + Result[uint2(id.x, id.y)].rgb;
+        color.a = Result[uint2(id.x, id.y)].a;
+    }
+    
+    Result[uint2(id.x, id.y)] = color;
+    
+}

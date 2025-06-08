@@ -1,0 +1,36 @@
+#pragma kernel Diamond
+
+float Fade;
+float Offset;
+
+
+Texture2D Copy;
+RWTexture2D<float4> Result;
+
+[numthreads(8,8,1)]
+void Diamond (uint3 id : SV_DispatchThreadID) {
+    
+    uint width, height;
+    Result.GetDimensions(width, height);
+    
+    float uvx = id.x / (float)width;
+    float uvy = id.y / (float)height;
+    
+    float uv_left = saturate(uvx - Offset);
+    float uv_right = saturate(uvx + Offset);
+    float uv_top = saturate(uvy + Offset);
+    float uv_bottom = saturate(uvy - Offset);
+    
+    float4 color = Result[uint2(id.x, id.y)];
+    
+    color += Copy[uint2(uv_left * width, id.y)];
+    color += Copy[uint2(uv_right * width, id.y)];
+    color += Copy[uint2(id.x, uv_top * height)];
+    color += Copy[uint2(id.x, uv_bottom * height)];
+    
+    color *= 0.2;
+    
+    color.rgb = saturate(color.rgb - Fade);
+    
+    Result[uint2(id.x, id.y)] = color;
+}

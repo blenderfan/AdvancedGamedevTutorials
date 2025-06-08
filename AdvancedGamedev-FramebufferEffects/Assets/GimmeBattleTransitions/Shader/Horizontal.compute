@@ -1,0 +1,44 @@
+
+#pragma kernel Horizontal
+
+float Scanline;
+float Fade;
+
+float LeftOffset;
+float RightOffset;
+float Offset;
+
+Texture2D<float4> Copy;
+RWTexture2D<float4> Result;
+
+SamplerState samplerCopy;
+
+float rnd(float n) { return frac(sin(n) * 43758.5453123); }
+
+[numthreads(8,8,1)]
+void Horizontal (uint3 id : SV_DispatchThreadID)
+{
+
+    uint width, height;
+    Result.GetDimensions(width, height);
+    
+    float uvx = id.x / (float)width;
+    float uvy = id.y / (float)height;
+    
+    float4 color;
+    if(uvy < Scanline) {
+        
+        float above = saturate(uvy + Offset);
+        float left = saturate(uvx - LeftOffset);
+        float right = saturate(uvx + RightOffset);
+        
+        color = (Copy[uint2(id.x, above * height)] + Copy[uint2(left * width, above * height)] + Copy[uint2(right * width, above * height)]) * 0.333333f;
+        color.rgb = saturate(color.rgb - Fade * abs(rnd(uvx + Scanline)) * saturate(1.5 - color.rgb));
+        color.a = 1.0;
+    }
+    else {
+        color = Result[uint2(id.x, id.y)];
+    }
+    
+    Result[uint2(id.x, id.y)] = color;
+}

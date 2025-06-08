@@ -1,0 +1,47 @@
+
+#pragma kernel Spiral
+
+float Fade;
+float AngleSpeed;
+float CenterSpeed;
+float Time;
+float Offset;
+
+Texture2D Copy;
+RWTexture2D<float4> Result;
+
+[numthreads(8,8,1)]
+void Spiral (uint3 id : SV_DispatchThreadID)
+{
+    uint width, height;
+    Result.GetDimensions(width, height);
+    
+    float2 uv = float2(id.x / (float)width, id.y / (float)height) - 0.5f;
+
+    float offset_time = clamp(Time - Offset, 0, 10e10);
+    float angle = AngleSpeed * sqrt(Time);
+    float offset_angle = AngleSpeed * sqrt(offset_time);
+    float2x2 rotation_matrix = { cos(angle), -sin(angle), sin(angle), cos(angle) };
+    float2x2 offset_rotation = { cos(offset_angle), -sin(offset_angle), sin(offset_angle), cos(offset_angle)};
+    
+    float2 new_uv = mul(rotation_matrix, uv);
+    new_uv *= (1 + CenterSpeed * Time);
+    new_uv += 0.5f;
+    
+    float2 offset_uv = mul(offset_rotation, uv);
+    offset_uv *= (1 + CenterSpeed * offset_time);
+    offset_uv += 0.5f;
+    
+    float4 color;
+    
+    if (all(new_uv.xy >= 0) && all(new_uv.xy <= 1))
+    {
+        color = (Copy[uint2(new_uv.x * width, new_uv.y * height)]
+        + saturate(Copy[uint2(offset_uv.x * width, offset_uv.y * height)] - Fade)) * 0.5f;
+        
+    } else {
+        color = 0;
+    }
+        
+    Result[id.xy] = color;
+}
